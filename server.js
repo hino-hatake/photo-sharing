@@ -25,7 +25,7 @@ app.get("/user/list", (req, res) => {
         return {
             _id: users._id,
             first_name: users.first_name, 
-            last_name: users.last_name
+            last_name: users.last_name,
         };
     }
     catch (err) {
@@ -55,10 +55,34 @@ app.get("/photosOfUser/:id",async (req, res) => {
     try {
         const user = await User.findById(req.params.id).lean();
         if(!user) {
-            return res.status(400).json({ error: "Invalid user ID" });
+          return res.status(400).json({ error: "Invalid user ID" });
         }
         const photos = await Photo.find({user_id: req.params.id}) // hoặc {user_id: user._id}
-            .select()
+        .select("_id user_id file_name date_time comments").lean();
+        const photoData = await Promise.all(
+          photos.map(async (photo) => {
+            const comments = await Promise.all(
+              photo.comments.map(async(comment) =>{
+                const commentUser = await User.findById(comment.user_id)
+                .select("_id first_name last_name").lean();
+                return {
+                  _id: comment._id,
+                  comment: comment.comment,
+                  date_time: comment.date_time,
+                  user: commentUser || { _id: comment.user_id, first_name: "Unknown", last_name: "" },
+                };
+              })
+            )
+
+            return {
+            _id: photo._id,
+            user_id: photo.user_id,
+            file_name: photo.file_name,
+            date_time: photo.date_time,
+            comments,
+            };
+          })
+        );       
     }
     catch (err) {
         console.error("Error fetching photos of user:", err);

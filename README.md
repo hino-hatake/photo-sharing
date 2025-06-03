@@ -9,6 +9,11 @@ We use the MongooseJS Object Definition Language (ODL) to define a schema to
 * db/photoModel.js - Defines the Photos collection containing the objects describing each photo. It also defines the objects we use to store the comments made on the photo.
 * db/schemaInfo.js - Defines the SchemaInfo collection containing the object describing the schema version.
 
+1. Tạo file .env lên atlas cop link vô
+2. chạy file dbLoad.js rồi xem log trong bash và data trong atlas đã có chưa 
+3. tạo file dbConnection.js kết nối với db qua file .env(nhớ cài dotenv để đọc file)
+4. chạy server và xem dòng log trong bash hiển thị kết nối thành công với mongo db.
+
 ### Problem 1: Build a backend app to use the database
 
 API:
