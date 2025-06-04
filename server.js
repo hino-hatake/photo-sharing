@@ -51,44 +51,66 @@ app.get("/user/:id", async (req, res) => {
 });
 
 // API: Danh sách ảnh của người dùng
-app.get("/photosOfUser/:id",async (req, res) => {
+app.get("/photosOfUser/:id", async (req, res) => {
     try {
         const user = await User.findById(req.params.id).lean();
-        if(!user) {
-          return res.status(400).json({ error: "Invalid user ID" });
+        if (!user) {
+        return res.status(400).json({ error: "Invalid user ID" });
         }
-        const photos = await Photo.find({user_id: req.params.id}) // hoặc {user_id: user._id}
-        .select("_id user_id file_name date_time comments").lean();
-        const photoData = await Promise.all(
-          photos.map(async (photo) => {
-            const comments = await Promise.all(
-              photo.comments.map(async(comment) =>{
-                const commentUser = await User.findById(comment.user_id)
-                .select("_id first_name last_name").lean();
-                return {
-                  _id: comment._id,
-                  comment: comment.comment,
-                  date_time: comment.date_time,
-                  user: commentUser || { _id: comment.user_id, first_name: "Unknown", last_name: "" },
-                };
-              })
-            )
 
-            return {
-            _id: photo._id,
-            user_id: photo.user_id,
-            file_name: photo.file_name,
-            date_time: photo.date_time,
-            comments,
-            };
-          })
-        );       
+        const photos = await Photo.find({ user_id: req.params.id })
+        .select("_id user_id file_name date_time comments")
+        .populate({
+            path: "comments.user_id", // Populate trường user_id trong comments
+            select: "_id first_name last_name", // Chỉ lấy các trường cần thiết
+        })
+        .lean();
+
+        res.json(photos);
+    } catch (err) {
+        console.error("Error fetching photos:", err);
+        res.status(400).json({ error: "Invalid user ID" });
     }
-    catch (err) {
-        console.error("Error fetching photos of user:", err);
-        res.status(400).json({ error: "Server error" });
-    }
-});
+    });
+    
+// app.get("/photosOfUser/:id",async (req, res) => {
+//     try {
+//         const user = await User.findById(req.params.id).lean();
+//         if(!user) {
+//           return res.status(400).json({ error: "Invalid user ID" });
+//         }
+//         const photos = await Photo.find({user_id: req.params.id}) // hoặc {user_id: user._id}
+//         .select("_id user_id file_name date_time comments").lean();
+//         const photoData = await Promise.all(
+//           photos.map(async (photo) => {
+//             const comments = await Promise.all(
+//               photo.comments.map(async(comment) =>{
+//                 const commentUser = await User.findById(comment.user_id)
+//                 .select("_id first_name last_name").lean();
+//                 return {
+//                   _id: comment._id,
+//                   comment: comment.comment,
+//                   date_time: comment.date_time,
+//                   user: commentUser || { _id: comment.user_id, first_name: "Unknown", last_name: "" },
+//                 };
+//               })
+//             )
+
+//             return {
+//             _id: photo._id,
+//             user_id: photo.user_id,
+//             file_name: photo.file_name,
+//             date_time: photo.date_time,
+//             comments,
+//             };
+//           })
+//         );       
+//     }
+//     catch (err) {
+//         console.error("Error fetching photos of user:", err);
+//         res.status(400).json({ error: "Server error" });
+//     }
+// });
 
 
 // Khởi động server
