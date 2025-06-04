@@ -1,23 +1,24 @@
 # Notes
 
-## DB
+## I. DB
 
 ### Mongo Atlas
 
-quannt247 / Dq1F88gxnyw71aYo
+Thông tin đăng nhập: `quannt247` / `Dq1F88gxnyw71aYo`
 
+Connect URL:
 ```
 mongodb+srv://quannt247:Dq1F88gxnyw71aYo@photo-sharing.iouobsn.mongodb.net/?retryWrites=true&w=majority&appName=photo-sharing
 ```
 
-Mongoose 7:
+Cài Mongoose:
 ```sh
 npm install mongoose
 ```
 
 ### Load data
 
-```
+```sh
 node ./db/dbLoad.js
 ```
 
@@ -82,7 +83,7 @@ erDiagram
     USERS ||--o{ COMMENTS : "writes"
 ```
 
-## API
+## II. API
 
 ### Cấu trúc thư mục
 
@@ -150,8 +151,70 @@ curl -s http://localhost:3001/photosOfUser/<user_id> | jq
 curl -s http://localhost:3001/photosOfUser/57231f1a30e4351f4e9f4bdb | jq
 ```
 
-## UI
+## III. UI
+
+Triển khai hàm `fetchModel`
+
+Vị trí: lib/fetchModelData.js
+
+Chức năng:
+- Gửi HTTP GET đến các endpoint backend:
+    - /user/list
+    - /user/:id
+    - /photosOfUser/:id
+- Nhận và trả về dữ liệu JSON phù hợp cho frontend.
+
+Ghi chú kỹ thuật:
+- Có thể dùng `fetch` hoặc `axios`.
+- Xử lý lỗi: Nếu backend trả về HTTP 400 (hoặc lỗi khác), cần trả về thông báo lỗi rõ ràng cho frontend.
+
+Cập nhật các component frontend
+
+Các file cần sửa:
+- `/components/UserDetail/index.jsx`: Lấy chi tiết user từ /user/:id
+- `/components/UserList/index.jsx`: Lấy danh sách user từ /user/list
+- `/components/UserPhotos/index.jsx`: Lấy danh sách ảnh và comment từ /photosOfUser/:id
+
+Yêu cầu:
+- Thay thế toàn bộ logic lấy dữ liệu tĩnh/gỉa lập bằng lời gọi fetchModel.
+- Đảm bảo dữ liệu trả về từ backend được xử lý đúng để hiển thị trên UI.
+
+Tóm tắt:
+- Viết hàm fetchModel nhận endpoint và trả về dữ liệu JSON hoặc lỗi.
+- Refactor các component React để sử dụng fetchModel thay vì dữ liệu cứng.
+- Đảm bảo xử lý tốt các trường hợp lỗi (ví dụ: id không hợp lệ, backend trả về lỗi).
 
 ### Cấu trúc thư mục
 
+```
+frontend/
+│
+├── public/
+│   └── index.html
+│
+├── src/
+│   ├── components/
+│   │   ├── UserDetail/
+│   │   │   └── index.jsx
+│   │   ├── UserList/
+│   │   │   └── index.jsx
+│   │   └── UserPhotos/
+│   │       └── index.jsx
+│   ├── lib/
+│   │   └── fetchModelData.js
+│   ├── App.jsx
+│   ├── index.js
+│   └── styles/
+│       └── (các file css/scss nếu có)
+│
+├── package.json
+└── README.md
+```
+
+### Khởi tạo
+
+```
+npx create-react-app . --template cra-template
+npm install axios
+npm install react-router-dom
 ```
