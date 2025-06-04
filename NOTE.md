@@ -149,3 +149,9 @@ Lấy tất cả ảnh và comment của một user (thay <user_id> bằng `_id`
 curl -s http://localhost:3001/photosOfUser/<user_id> | jq
 curl -s http://localhost:3001/photosOfUser/57231f1a30e4351f4e9f4bdb | jq
 ```
+
+## UI
+
+### Cấu trúc thư mục
+
+```

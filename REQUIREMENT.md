@@ -31,3 +31,27 @@ Ghi chú chung:
 - Xử lý lỗi: Kiểm tra tham số id (ví dụ: sử dụng mongoose.Types.ObjectId.isValid). Trả về mã HTTP 400 với thông báo lỗi rõ ràng cho các đầu vào không hợp lệ.
 - Xử lý đồng thời: Sử dụng các truy vấn Mongoose bất đồng bộ (ví dụ: Promise.all) để lấy ảnh và bình luận đồng thời trong endpoint `/photosOfUser/:id`.
 - Schema cơ sở dữ liệu: Không được phép thay đổi schema cơ sở dữ liệu; làm việc với schema hiện có.
+
+## Problem 2: Frontend Data Fetching
+
+**Mục tiêu:**
+
+Chuyển đổi ứng dụng frontend để lấy dữ liệu mô hình từ backend thông qua các API đã xây dựng.
+
+**Yêu cầu:**
+
+**Triển khai hàm fetchModel:**
+* Vị trí: Triển khai trong lib/fetchModelData.js.
+* Chức năng: Hàm này sẽ gửi yêu cầu HTTP đến các endpoint backend (`/user/list`, `/user/:id`, `/photosOfUser/:id`) để lấy dữ liệu cần thiết cho các giao diện frontend.
+* Ghi chú triển khai:
+Sử dụng fetch API hoặc thư viện như Axios để gửi các yêu cầu GET.
+Xử lý phản hồi JSON từ backend và trả về dữ liệu ở định dạng phù hợp với frontend.
+* Xử lý lỗi (ví dụ: kiểm tra mã trạng thái HTTP 400 và thông báo lỗi).
+
+**Cập nhật các thành phần frontend:**
+* Các file cần sửa đổi:
+    * `/components/UserDetail/index.jsx`: Sử dụng fetchModel để lấy dữ liệu chi tiết của người dùng từ endpoint `/user/:id`.
+    * `/components/UserList/index.jsx`: Sử dụng fetchModel để lấy danh sách người dùng từ endpoint `/user/list`.
+    * `/components/UserPhotos/index.jsx`: Sử dụng fetchModel để lấy danh sách ảnh và bình luận từ endpoint `/photosOfUser/:id`.
+* Ghi chú triển khai:
+Thay thế các phương thức lấy dữ liệu tĩnh hoặc giả lập trước đó bằng các lời gọi fetchModel. Đảm bảo dữ liệu trả về từ backend được xử lý đúng để hiển thị trên giao diện.
