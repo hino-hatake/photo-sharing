@@ -55,3 +55,55 @@ Xử lý phản hồi JSON từ backend và trả về dữ liệu ở định d
     * `/components/UserPhotos/index.jsx`: Sử dụng fetchModel để lấy danh sách ảnh và bình luận từ endpoint `/photosOfUser/:id`.
 * Ghi chú triển khai:
 Thay thế các phương thức lấy dữ liệu tĩnh hoặc giả lập trước đó bằng các lời gọi fetchModel. Đảm bảo dữ liệu trả về từ backend được xử lý đúng để hiển thị trên giao diện.
+## Problem 3: Simple Login
+
+**Mục tiêu:** Thêm tính năng đăng nhập người dùng vào ứng dụng, hiển thị thông tin người dùng đã đăng nhập và từ chối truy cập nếu chưa đăng nhập.
+
+**Yêu cầu:**
+
+### Frontend
+
+#### Giao diện khi đã đăng nhập
+
+Thanh công cụ (toolbar) hiển thị thông báo "Hi firstname" (với firstname là tên của người dùng đã đăng nhập). Thêm nút "Logout" để đăng xuất.
+
+#### Giao diện khi chưa đăng nhập
+
+Thanh công cụ hiển thị "Please Login".
+Giao diện chính chuyển sang component LoginRegister.
+
+Mọi nỗ lực điều hướng đến các giao diện khác (ví dụ: deep links) sẽ chuyển hướng về LoginRegister nếu chưa đăng nhập.
+
+Danh sách người dùng bên trái (user list) không được hiển thị nếu chưa đăng nhập.
+
+#### Xử lý đăng nhập
+
+Khi đăng nhập thành công, hiển thị giao diện chi tiết người dùng (User Detail).
+
+Nếu đăng nhập thất bại (ví dụ: không tìm thấy `login_name`), hiển thị thông báo lỗi và cho phép thử lại.
+
+### Backend
+
+#### Cập nhật schema
+
+Thêm trường `login_name` (kiểu chuỗi) vào schema User của Mongoose.
+
+#### API mới
+
+##### POST /admin/login
+
+Nhận body JSON chứa `login_name`.
+Kiểm tra xem `login_name` có tồn tại trong cơ sở dữ liệu không.
+Nếu hợp lệ, lưu thông tin người dùng vào session Express (hoặc tạo JWT token nếu dùng xác thực dựa trên token). Trả về các thuộc tính cần thiết của người dùng (ít nhất là `_id`, tránh trả về toàn bộ đối tượng người dùng).
+Trả về mã HTTP 400 nếu đăng nhập thất bại (ví dụ: `login_name` không hợp lệ).
+
+##### POST /admin/logout
+
+Nhận body JSON rỗng.
+Xóa thông tin session (hoặc xóa token JWT phía client nếu dùng token).
+Trả về mã HTTP 400 nếu người dùng chưa đăng nhập.
+
+##### Cập nhật các endpoint hiện có
+
+Tất cả các endpoint (trừ `/admin/login` và `/admin/logout`), trả về mã HTTP 401 (Unauthorized) nếu người dùng chưa đăng nhập (kiểm tra session hoặc token).
+

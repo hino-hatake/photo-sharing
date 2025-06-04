@@ -218,3 +218,61 @@ npx create-react-app . --template cra-template
 npm install axios
 npm install react-router-dom
 ```
+
+Code và chạy ứng dụng:
+```sh
+npm start
+```
+Mở trình duyệt tại http://localhost:3000
+
+### Verify UI
+
+Chưa có css hay tailwind, giao diện khá thô sơ như sau:
+
+![alt text](ui-basic.png)
+
+## IV. Simple Login
+
+### Mục tiêu
+
+- Thêm chức năng đăng nhập cho ứng dụng.
+- Chỉ cho phép truy cập các trang chính khi đã đăng nhập.
+- Hiển thị thông tin người dùng đã đăng nhập và cho phép logout.
+
+### Backend
+
+Xác thực theo stateless, không lưu session trên server, dùng JWT.
+
+```sh
+npm install jsonwebtoken
+```
+
+Gen JWT_SECRET và đưa vào file `.env`.
+
+Tạo route `/admin/login` (trả về **JWT token** nếu login thành công) và `/admin/logout`.
+
+Tạo **middleware** xác thực JWT, bảo vệ tất cả API (trừ `/admin/login`, `/admin/logout`).
+
+### Cách verify backend
+
+Login:
+```sh
+curl -sX POST http://localhost:3001/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"login_name":"<login_name>"}'
+curl -sX POST http://localhost:3001/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"login_name": "Ian Malcolm"}' | jq
+```
+
+Login xong response trả về có dạng như sau:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1NzIzMWYxYTMwZTQzNTFmNGU5ZjRiZDciLCJmaXJzdF9uYW1lIjoiSWFuIiwibGFzdF9uYW1lIjoiTWFsY29sbSIsImlhdCI6MTc0OTA1ODYxNiwiZXhwIjoxNzQ5MDY1ODE2fQ.hOz-qk3EEhreT8CpIru9ZN7lBRz93KuHPSaSE18Ef64",
+  "user": {
+    "_id": "57231f1a30e4351f4e9f4bd7",
+    "first_name": "Ian",
+    "last_name": "Malcolm"
+  }
+}
+```
