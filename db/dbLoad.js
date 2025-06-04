@@ -15,8 +15,11 @@ async function dbLoad() {
     process.exit(1);
   }
 
+  // code sample trên atlas hướng dẫn thêm đoạn này
+  const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
+
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI, clientOptions);
     console.log("Successfully connected to MongoDB Atlas!");
   } catch (error) {
     console.error("Error connecting to MongoDB Atlas:", error);
