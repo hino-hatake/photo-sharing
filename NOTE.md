@@ -276,3 +276,53 @@ Login xong response trả về có dạng như sau:
   }
 }
 ```
+
+Logout thì ko có gì, vì với JWT, logout chỉ là xóa token phía client, backend chỉ trả về thông báo:
+```sh
+curl -sX POST http://localhost:3001/admin/logout
+```
+
+Gọi API ko có token sẽ trả về lỗi 401 Unauthorized:
+```sh
+curl -s http://localhost:3001/user/list | jq
+```
+
+Kết quả:
+```json
+{ "error": "No token, unauthorized" }
+```
+
+Hoặc với token không hợp lệ:
+```json
+{ "error": "Invalid or expired token" }
+```
+
+Gọi API với token hợp lệ sẽ nhận dc kết quả trả về:
+```sh
+curl -s http://localhost:3001/user/list \
+  -H "Authorization: Bearer <token>" | jq
+curl -s http://localhost:3001/user/list \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1NzIzMWYxYTMwZTQzNTFmNGU5ZjRiZDciLCJmaXJzdF9uYW1lIjoiSWFuIiwibGFzdF9uYW1lIjoiTWFsY29sbSIsImlhdCI6MTc0OTA1ODYxNiwiZXhwIjoxNzQ5MDY1ODE2fQ.hOz-qk3EEhreT8CpIru9ZN7lBRz93KuHPSaSE18Ef64" | jq
+```
+
+### Frontend
+
+#### Thực hiện
+
+Để tích hợp login/logout với JWT vào frontend React, ta cần:
+
+- Tạo component `LoginRegister` để nhập `login_name` và xử lý đăng nhập.
+- Lưu token vào **localStorage** (hoặc state/context).
+- Khi gọi API, tự động gắn token vào header **Authorization**.
+- Hiển thị giao diện phù hợp:
+    - Nếu đã đăng nhập: Hiển thị "Hi {firstname}" + nút Logout + các component chính.
+    - Nếu chưa đăng nhập: Hiển thị `LoginRegister`, ẩn UserList.
+
+#### Giao diện
+
+Màn hình login:
+![alt text](ui-login.png)
+
+Sau khi login:
+
+![alt text](ui-logged-in.png)

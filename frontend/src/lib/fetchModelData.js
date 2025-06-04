@@ -7,7 +7,9 @@ import axios from "axios";
  */
 const fetchModel = async (endpoint) => {
   try {
-    const res = await axios.get(endpoint);
+    const token = localStorage.getItem("token");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const res = await axios.get(endpoint, { headers });
     return res.data;
   } catch (err) {
     if (err.response && err.response.data && err.response.data.error) {
