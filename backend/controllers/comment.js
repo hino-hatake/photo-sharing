@@ -48,7 +48,7 @@ exports.getPhotosOfUser = async (req, res) => {
     );
     res.json(photoData);
   } catch (err) {
-    res.status(400).json({ error: "Server error" });
+    res.status(400).json({ error: "Lỗi lấy ảnh của người dùng chưa rõ tại sao" });
   }
 };
 
@@ -80,6 +80,6 @@ exports.addCommentToPhoto = async (req, res) => {
       .lean();
     res.json(updatedPhoto);
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: "Lỗi comment chưa rõ tại sao" });
   }
 };

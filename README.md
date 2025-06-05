@@ -336,13 +336,6 @@ Sau khi login:
 
 ### Thực hiện
 
-#### Frontend
-
-- Trong giao diện chi tiết ảnh (photo detail view), mỗi ảnh cần có ô nhập bình luận và nút gửi (`UserPhotos`).
-- Khi người dùng nhập bình luận và gửi:
-  - Gửi request POST lên backend với nội dung bình luận.
-  - Nếu thành công, cập nhật lại danh sách bình luận của ảnh đó trên UI (không cần reload toàn trang).
-
 #### Backend
 
 - Thêm route POST `/commentsOfPhoto/:photo_id`
@@ -352,6 +345,13 @@ Sau khi login:
 - Tạo đối tượng bình luận mới: gồm `user_id`, `date_time` (thời gian hiện tại), `comment`.
 - Lưu bình luận vào mảng `comments` của photo có `_id` = `photo_id`.
 - Trả về thông tin bình luận vừa thêm (hoặc toàn bộ photo đã cập nhật).
+
+#### Frontend
+
+- Trong giao diện chi tiết ảnh (photo detail view), mỗi ảnh cần có ô nhập bình luận và nút gửi (`UserPhotos`).
+- Khi người dùng nhập bình luận và gửi:
+  - Gửi request POST lên backend với nội dung bình luận.
+  - Nếu thành công, cập nhật lại danh sách bình luận của ảnh đó trên UI (không cần reload toàn trang).
 
 ### Verify API
 
@@ -422,3 +422,52 @@ Thử bình luận rỗng sẽ nhận lỗi 400:
 }
 ```
 
+## VI. Photo Uploading
+
+**Mục tiêu:** Cho phép người dùng đã đăng nhập tải ảnh lên và hiển thị ảnh mới trong giao diện.
+
+**Yêu cầu:**
+- Frontend:
+Khi người dùng đã đăng nhập, thêm nút "Add Photo" vào thanh công cụ.
+Cho phép tải tệp ảnh lên và hiển thị ảnh mới trong giao diện danh sách ảnh của người dùng (User Photos) hoặc hiển thị thông báo thành công.
+- Backend:
+    
+    **API mới:**
+    - POST /photos/new:
+Nhận tệp ảnh trong body của yêu cầu.
+Lưu tệp vào thư mục images với tên duy nhất (tự tạo).
+Tạo đối tượng Photo mới(Tên tệp,Thời gian tạo, ID của người dùng đang đăng nhập).
+Trả về mã HTTP 400 nếu không có tệp trong yêu cầu.
+
+## VII. Registration and Passwords
+
+**Mục tiêu:** Mở rộng LoginRegister để hỗ trợ đăng ký người dùng mới và đăng nhập bằng mật khẩu.
+
+**Yêu cầu:**
+- Frontend:
+Cập nhật component LoginRegister:
+    - Đăng nhập: Thêm trường nhập mật khẩu.
+    - Đăng ký: Thêm các trường để nhập tất cả thuộc tính của đối tượng User (login_name, password, first_name, last_name, location, description, occupation).
+    - Thêm trường xác nhận mật khẩu thứ hai để đảm bảo không gõ sai.
+    - Mật khẩu không được hiển thị (dùng type="password").
+    - Thêm nút "Register Me" để gửi yêu cầu đăng ký.
+    - Hiển thị thông báo lỗi cụ thể nếu đăng ký thất bại hoặc thông báo thành công và xóa các trường nhập liệu nếu thành công.
+
+- Backend:
+
+    **Cập nhật schema:** Thêm trường password (kiểu chuỗi) vào schema User của Mongoose.
+
+    **API mới:**
+    
+    - POST /user: Nhận body JSON chứa login_name, password, first_name, last_name, location, description, occupation.
+    
+    **Kiểm tra:**
+    - login_name không được trùng lặp và phải được cung cấp.
+    - first_name, last_name, password không được rỗng (các trường khác có thể rỗng).
+    - Nếu hợp lệ, tạo người dùng mới trong cơ sở dữ liệu.
+    - Trả về các thuộc tính cần thiết (ít nhất là login_name).
+    - Trả về mã HTTP 400 với thông báo lỗi nếu thông tin không hợp lệ.
+
+    **Cập nhật POST /admin/login:**
+    - Kiểm tra cả login_name và password khi đăng nhập.
+    - Trả về mã HTTP 400 nếu thông tin đăng nhập không hợp lệ.

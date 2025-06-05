@@ -12,7 +12,7 @@ exports.login = async (req, res) => {
     const token = jwt.sign({ _id: user._id, first_name: user.first_name, last_name: user.last_name }, JWT_SECRET, { expiresIn: '2h' });
     res.json({ token, user });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Lỗi login chưa rõ tại sao' });
   }
 };
 

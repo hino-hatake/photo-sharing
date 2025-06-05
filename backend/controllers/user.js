@@ -6,7 +6,7 @@ exports.getUserList = async (req, res) => {
     const users = await User.find().select("_id first_name last_name").lean();
     res.json(users);
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: "Lỗi lấy danh sách user chưa rõ tại sao" });
   }
 };
 

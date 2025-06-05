@@ -24,7 +24,7 @@ app.get("user/list", async (req, res) => {
     }
     catch(error) {
         console.error("Error fetching user list:",error);
-        res.status(500).json({error: "Server error"})
+        res.status(500).json({error: "Lỗi lấy danh sách user chưa rõ tại sao"})
     }
 });
 // API: Chi tiết người dùng
@@ -34,6 +34,6 @@ app.get("/user/:id", async (req,res) =>{
     }
     catch (error) {
       console.error("Error fetching user:",error);
-      res.status(400)
+      res.status(400).json({error: "Lỗi lấy thông tin người dùng chưa rõ tại sao"});
     }
 });
