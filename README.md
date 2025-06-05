@@ -262,7 +262,7 @@ curl -sX POST http://localhost:3001/admin/login \
   -d '{"login_name":"<login_name>"}'
 curl -sX POST http://localhost:3001/admin/login \
   -H "Content-Type: application/json" \
-  -d '{"login_name": "Ian Malcolm"}' | jq
+  -d '{"login_name": "ian"}' | jq
 ```
 
 Login xong response trả về có dạng như sau:
@@ -326,3 +326,99 @@ Màn hình login:
 Sau khi login:
 
 ![alt text](ui-logged-in.png)
+
+## V. New Comments
+
+### Mục tiêu
+
+- Cho phép người dùng đã đăng nhập thêm bình luận vào ảnh.
+- Giao diện cập nhật ngay lập tức khi bình luận mới được thêm.
+
+### Thực hiện
+
+#### Frontend
+
+- Trong giao diện chi tiết ảnh (photo detail view), mỗi ảnh cần có ô nhập bình luận và nút gửi (`UserPhotos`).
+- Khi người dùng nhập bình luận và gửi:
+  - Gửi request POST lên backend với nội dung bình luận.
+  - Nếu thành công, cập nhật lại danh sách bình luận của ảnh đó trên UI (không cần reload toàn trang).
+
+#### Backend
+
+- Thêm route POST `/commentsOfPhoto/:photo_id`
+- Nhận body JSON: `{ "comment": "nội dung bình luận" }`
+- Middleware xác thực JWT để lấy `user_id` từ token (người đang đăng nhập).
+- Kiểm tra nội dung bình luận không được rỗng (nếu rỗng trả về HTTP 400).
+- Tạo đối tượng bình luận mới: gồm `user_id`, `date_time` (thời gian hiện tại), `comment`.
+- Lưu bình luận vào mảng `comments` của photo có `_id` = `photo_id`.
+- Trả về thông tin bình luận vừa thêm (hoặc toàn bộ photo đã cập nhật).
+
+### Verify API
+
+Login để lấy token:
+```sh
+curl -sX POST http://localhost:3001/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"login_name":"<login_name>"}'
+
+curl -sX POST http://localhost:3001/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"login_name": "ian"}' | jq
+```
+
+Lấy tất cả ảnh và comment của một user:
+```sh
+curl -s http://localhost:3001/photosOfUser/<user_id> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" | jq
+
+curl -s http://localhost:3001/photosOfUser/57231f1a30e4351f4e9f4bdb \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1NzIzMWYxYTMwZTQzNTFmNGU5ZjRiZDciLCJmaXJzdF9uYW1lIjoiSWFuIiwibGFzdF9uYW1lIjoiTWFsY29sbSIsImlhdCI6MTc0OTEwNzcxMywiZXhwIjoxNzQ5MTE0OTEzfQ.QbuzlQt0L_C1V8Cd60KLjqy_TD3zUGls4YmaQN9W5K4" | jq
+```
+
+Thêm bình luận mới vào một photo:
+```sh
+curl -sX POST http://localhost:3001/commentsOfPhoto/<photo_id> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"comment":"Bình luận mới"}' | jq
+
+curl -sX POST http://localhost:3001/commentsOfPhoto/6840840904d87e5d09eb85b4 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1NzIzMWYxYTMwZTQzNTFmNGU5ZjRiZDciLCJmaXJzdF9uYW1lIjoiSWFuIiwibGFzdF9uYW1lIjoiTWFsY29sbSIsImlhdCI6MTc0OTEwNzcxMywiZXhwIjoxNzQ5MTE0OTEzfQ.QbuzlQt0L_C1V8Cd60KLjqy_TD3zUGls4YmaQN9W5K4" \
+  -d '{"comment":"Bình luận mới"}' | jq
+```
+
+Kết quả, ta nhận dc comment mới trong response về ảnh đc comment:
+```json
+{
+  "_id": "6840840904d87e5d09eb85b4",
+  "file_name": "ludgate1.jpg",
+  "date_time": "2013-09-04T02:16:32.000Z",
+  "user_id": "57231f1a30e4351f4e9f4bdb",
+  "comments": [
+    {
+      "comment": "Beautiful yet cold and aloof. Loner. Does not obey, occasionally chooses to cooperate. ",
+      "date_time": "2013-09-04T03:14:32.000Z",
+      "user_id": "57231f1a30e4351f4e9f4bdb",
+      "_id": "6840840904d87e5d09eb85b5"
+    },
+    {
+      "comment": "Bình luận mới",
+      "date_time": "2025-06-05T07:16:45.561Z",
+      "user_id": "57231f1a30e4351f4e9f4bd7",
+      "_id": "6841445d3571c95c538e03e1"
+    }
+  ],
+  "__v": 1
+}
+```
+
+Thử bình luận rỗng sẽ nhận lỗi 400:
+```sh
+{
+  "error": "Comment must not be empty"
+}
+```
+

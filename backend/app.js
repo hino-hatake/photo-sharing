@@ -5,6 +5,7 @@ const connectDB = require("./db/dbConnection");
 
 const userRoutes = require("./routes/user");
 const photoRoutes = require("./routes/photo");
+const commentRoutes = require("./routes/comment");
 const adminRoutes = require("./routes/admin");
 const auth = require("./middleware/auth");
 
@@ -24,6 +25,7 @@ app.use(auth);
 
 app.use("/user", userRoutes);
 app.use("/photosOfUser", photoRoutes);
+app.use("/commentsOfPhoto", commentRoutes);
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

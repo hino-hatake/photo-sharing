@@ -3,15 +3,15 @@ const User = require("../db/userModel");
 const mongoose = require("mongoose");
 
 exports.getPhotosOfUser = async (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.user_id)) {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(400).json({ error: "Invalid user ID" });
   }
   try {
-    const user = await User.findById(req.params.user_id).lean();
+    const user = await User.findById(req.params.id).lean();
     if (!user) {
       return res.status(400).json({ error: "Invalid user ID" });
     }
-    const photos = await Photo.find({ user_id: req.params.user_id })
+    const photos = await Photo.find({ user_id: req.params.id })
       .select("_id user_id file_name date_time comments")
       .lean();
 
