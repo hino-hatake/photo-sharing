@@ -466,7 +466,7 @@ Yêu cầu kỹ thuật:
 - Đảm bảo chỉ user đã đăng nhập mới upload được ảnh (JWT middleware).
 - Không thay đổi schema hiện tại.
 
-Cài thêm 2 package:
+Nhớ cài thêm 2 package:
 ```sh
 npm install multer uuid
 ```
@@ -479,33 +479,88 @@ npm install multer uuid
 
 ## VII. Registration and Passwords
 
-**Mục tiêu:** Mở rộng LoginRegister để hỗ trợ đăng ký người dùng mới và đăng nhập bằng mật khẩu.
+### Mục tiêu
 
-**Yêu cầu:**
-- Frontend:
-Cập nhật component LoginRegister:
-    - Đăng nhập: Thêm trường nhập mật khẩu.
-    - Đăng ký: Thêm các trường để nhập tất cả thuộc tính của đối tượng User (login_name, password, first_name, last_name, location, description, occupation).
-    - Thêm trường xác nhận mật khẩu thứ hai để đảm bảo không gõ sai.
-    - Mật khẩu không được hiển thị (dùng type="password").
-    - Thêm nút "Register Me" để gửi yêu cầu đăng ký.
-    - Hiển thị thông báo lỗi cụ thể nếu đăng ký thất bại hoặc thông báo thành công và xóa các trường nhập liệu nếu thành công.
+Mở rộng LoginRegister để hỗ trợ đăng ký người dùng mới và đăng nhập bằng mật khẩu.
 
-- Backend:
+### DB
 
-    **Cập nhật schema:** Thêm trường password (kiểu chuỗi) vào schema User của Mongoose.
+- Kiểm tra DB (schema hiện tại)
+- File `userModel.js` hiện tại chưa có trường `password`.
+- Để đáp ứng yêu cầu đăng ký, bắt buộc phải thêm trường `password` vào schema `User`.
 
-    **API mới:**
-    
-    - POST /user: Nhận body JSON chứa login_name, password, first_name, last_name, location, description, occupation.
-    
-    **Kiểm tra:**
-    - login_name không được trùng lặp và phải được cung cấp.
-    - first_name, last_name, password không được rỗng (các trường khác có thể rỗng).
-    - Nếu hợp lệ, tạo người dùng mới trong cơ sở dữ liệu.
-    - Trả về các thuộc tính cần thiết (ít nhất là login_name).
-    - Trả về mã HTTP 400 với thông báo lỗi nếu thông tin không hợp lệ.
+Sau khi thêm trường `password`, cần update dữ liệu mẫu (_tham chiếu trong [backend/modelData/models.js](backend/modelData/models.js)_) và chạy lại `dbLoad.js` để nạp lại dữ liệu mẫu, ví dụ:
+```js
+const im = {
+  _id: "57231f1a30e4351f4e9f4bd7",
+  first_name: "Ian",
+  last_name: "Malcolm",
+  location: "Austin, TX",
+  description: "Should've stayed in the plane.",
+  occupation: "Mathematician",
+  login_name: "ian",
+  password: "123456", // Thêm trường password mặc định, nếu ko sẽ ko login dc
+};
+```
 
-    **Cập nhật POST /admin/login:**
-    - Kiểm tra cả login_name và password khi đăng nhập.
+### Backend
+
+Schema `User` cần có thêm trường `password` (kiểu chuỗi, bắt buộc khi đăng ký).
+
+Khi đăng ký (POST `/user`):
+- Nhận các trường: `login_name`, `password`, `first_name`, `last_name`, `location`, `description`, `occupation`.
+- Kiểm tra:
+  - `login_name` không trùng lặp và phải có.
+  - `password`, `first_name`, `last_name` không được rỗng.
+- Nếu hợp lệ, tạo user mới trong DB.
+- Trả về thông tin user (ít nhất là `login_name`).
+- Nếu lỗi, trả về HTTP 400 + thông báo lỗi.
+
+Cập nhật POST `/admin/login`:
+    - Kiểm tra cả `login_name` và `password` khi đăng nhập.
     - Trả về mã HTTP 400 nếu thông tin đăng nhập không hợp lệ.
+
+### Frontend
+
+Cập nhật component `LoginRegister`:
+- Đăng nhập: có trường mật khẩu (type="password").
+- Đăng ký: đầy đủ trường (`login_name`, `password`, `confirm_password`, `first_name`, `last_name`, `location`, `description`, `occupation`).
+- Kiểm tra xác nhận mật khẩu, validate trường bắt buộc.
+- Nút chuyển đổi giữa đăng nhập/đăng ký.
+- Thông báo lỗi/thành công rõ ràng, tự động xóa trường nhập khi đăng ký thành công.
+
+### Verify API
+
+Đăng kí mới:
+```sh
+curl -sX POST http://localhost:3001/user \
+  -H "Content-Type: application/json" \
+  -d '{
+    "login_name": "newuser",
+    "password": "123456",
+    "first_name": "New",
+    "last_name": "User",
+    "location": "Hanoi",
+    "description": "Tôi là user mới",
+    "occupation": "Tester"
+  }'
+```  
+
+### Verify UI
+
+Giao diện đăng ký sẽ có dạng như sau:
+![alt text](ui-signup.png)
+
+Tạo tài khoản mới thành công sẽ hiển thị thông báo yêu cầu đăng nhập mới, sau khi đăng nhập sẽ hiển thị giao diện chính với thông tin người dùng đã đăng nhập.:
+![alt text](ui-logged-in-after-registered.png)
+
+### Next steps
+
+Cập nhật backend để lưu mật khẩu dưới dạng `hash` (băm) thay vì `plaintext`. Đây là best practice cho bảo mật. Ta sẽ dùng thư viện `bcrypt` để hash password khi đăng ký và so sánh khi đăng nhập.
+
+Các bước cập nhật backend:
+
+- Cài đặt `bcrypt`.
+- Khi đăng ký user (POST `/user`): hash password trước khi lưu vào DB.
+- Khi đăng nhập (POST `/admin/login`): so sánh password nhập vào với hash trong DB bằng `bcrypt.compare`.
+- Không thay đổi schema, chỉ thay đổi logic lưu và kiểm tra password.

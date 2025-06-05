@@ -26,3 +26,29 @@ exports.getUserDetail = async (req, res) => {
     res.status(400).json({ error: "Invalid user ID" });
   }
 };
+
+exports.registerUser = async (req, res) => {
+  const { login_name, password, first_name, last_name, location, description, occupation } = req.body;
+  if (!login_name || !password || !first_name || !last_name) {
+    return res.status(400).json({ error: "Thiếu thông tin bắt buộc" });
+  }
+  try {
+    // Kiểm tra login_name trùng lặp
+    const existed = await User.findOne({ login_name });
+    if (existed) {
+      return res.status(400).json({ error: "login_name đã tồn tại" });
+    }
+    const user = await User.create({
+      login_name,
+      password,
+      first_name,
+      last_name,
+      location,
+      description,
+      occupation,
+    });
+    res.json({ login_name: user.login_name, _id: user._id });
+  } catch (err) {
+    res.status(500).json({ error: "Lỗi đăng ký user chưa rõ tại sao" });
+  }
+};
