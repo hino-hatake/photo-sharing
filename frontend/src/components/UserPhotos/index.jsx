@@ -9,37 +9,41 @@ const UserPhotos = ({ userId }) => {
 
   useEffect(() => {
     if (!userId) return;
+    // Gọi API lấy danh sách ảnh của user khi userId thay đổi
     fetchModel(`/photosOfUser/${userId}`)
       .then(setPhotos)
       .catch((err) => setError(err.message || "Lỗi tải ảnh"));
   }, [userId]);
 
+  // Xử lý thay đổi input comment cho từng ảnh
   const handleInputChange = (photoId, value) => {
     setCommentInputs((prev) => ({ ...prev, [photoId]: value }));
   };
 
+  // Xử lý gửi bình luận cho 1 ảnh
   const handleCommentSubmit = async (photoId) => {
     const comment = (commentInputs[photoId] || "").trim();
     if (!comment) {
       setError("Bình luận không được để trống");
       return;
     }
-    setPosting((prev) => ({ ...prev, [photoId]: true }));
+    setPosting((prev) => ({ ...prev, [photoId]: true })); // Đánh dấu đang gửi comment cho ảnh này
     setError(null);
     try {
+      // Gửi comment lên server
       const updatedPhoto = await postModel(`/commentsOfPhoto/${photoId}`, {
         comment,
       });
+      // Cập nhật lại danh sách ảnh với ảnh vừa được comment (server trả về ảnh đã có comment mới)
       setPhotos((prev) =>
         prev.map((p) => (p._id === photoId ? updatedPhoto : p))
       );
+      // Xóa nội dung input comment sau khi gửi thành công
       setCommentInputs((prev) => ({ ...prev, [photoId]: "" }));
     } catch (err) {
-      setError(
-        err.message || "Lỗi gửi bình luận hoặc hết phiên đăng nhập"
-      );
+      setError(err.message || "Lỗi gửi bình luận hoặc hết phiên đăng nhập");
     } finally {
-      setPosting((prev) => ({ ...prev, [photoId]: false }));
+      setPosting((prev) => ({ ...prev, [photoId]: false })); // Bỏ trạng thái đang gửi
     }
   };
 
@@ -66,7 +70,8 @@ const UserPhotos = ({ userId }) => {
                   <b>
                     {cmt.user?.first_name} {cmt.user?.last_name}:
                   </b>{" "}
-                  {cmt.comment} <i>({new Date(cmt.date_time).toLocaleString()})</i>
+                  {cmt.comment}{" "}
+                  <i>({new Date(cmt.date_time).toLocaleString()})</i>
                 </li>
               ))}
             </ul>
@@ -80,6 +85,7 @@ const UserPhotos = ({ userId }) => {
                 style={{ width: 220, marginRight: 8 }}
                 disabled={posting[photo._id]}
                 onKeyDown={(e) => {
+                  // Cho phép gửi bình luận bằng phím Enter
                   if (e.key === "Enter") handleCommentSubmit(photo._id);
                 }}
               />

@@ -390,28 +390,45 @@ curl -sX POST http://localhost:3001/commentsOfPhoto/6840840904d87e5d09eb85b4 \
   -d '{"comment":"Bình luận mới"}' | jq
 ```
 
-Kết quả, ta nhận dc comment mới trong response về ảnh đc comment:
+Kết quả, ta nhận dc comment mới trong response về ảnh đc comment (_lưu ý là đối tượng comment trả về đã đc update để trả về thêm `user.first_name` và `user.last_name` để FE hiển thị_):
 ```json
 {
   "_id": "6840840904d87e5d09eb85b4",
+  "user_id": "57231f1a30e4351f4e9f4bdb",
   "file_name": "ludgate1.jpg",
   "date_time": "2013-09-04T02:16:32.000Z",
-  "user_id": "57231f1a30e4351f4e9f4bdb",
   "comments": [
     {
+      "_id": "6840840904d87e5d09eb85b5",
       "comment": "Beautiful yet cold and aloof. Loner. Does not obey, occasionally chooses to cooperate. ",
       "date_time": "2013-09-04T03:14:32.000Z",
-      "user_id": "57231f1a30e4351f4e9f4bdb",
-      "_id": "6840840904d87e5d09eb85b5"
+      "user": {
+        "_id": "57231f1a30e4351f4e9f4bdb",
+        "first_name": "April",
+        "last_name": "Ludgate"
+      }
     },
     {
+      "_id": "6841445d3571c95c538e03e1",
       "comment": "Bình luận mới",
       "date_time": "2025-06-05T07:16:45.561Z",
-      "user_id": "57231f1a30e4351f4e9f4bd7",
-      "_id": "6841445d3571c95c538e03e1"
+      "user": {
+        "_id": "57231f1a30e4351f4e9f4bd7",
+        "first_name": "Ian",
+        "last_name": "Malcolm"
+      }
+    },
+    {
+      "_id": "68414ddb19975b43a4a4aa5c",
+      "comment": "Bình luận mới",
+      "date_time": "2025-06-05T07:57:15.484Z",
+      "user": {
+        "_id": "57231f1a30e4351f4e9f4bd7",
+        "first_name": "Ian",
+        "last_name": "Malcolm"
+      }
     }
-  ],
-  "__v": 1
+  ]
 }
 ```
 
