@@ -44,7 +44,8 @@ async function dbLoad() {
         location: user.location,
         description: user.description,
         occupation: user.occupation,
-        login_name: user.login_name // Thêm login_name
+        login_name: user.login_name, // Thêm login_name
+        password: user.password // Thêm password từ seed data
       });
       await userObj.save();
       mapFakeId2RealId[user._id] = userObj._id;
