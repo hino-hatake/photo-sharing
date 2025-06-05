@@ -6,6 +6,10 @@ const UserPhotos = ({ userId }) => {
   const [error, setError] = useState(null);
   const [commentInputs, setCommentInputs] = useState({}); // { photoId: commentText }
   const [posting, setPosting] = useState({}); // { photoId: true/false }
+  // Thêm state cho upload
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [uploadSuccess, setUploadSuccess] = useState(null);
 
   useEffect(() => {
     if (!userId) return;
@@ -47,11 +51,65 @@ const UserPhotos = ({ userId }) => {
     }
   };
 
+  // Xử lý upload ảnh mới
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError(null);
+    setUploadSuccess(null);
+    try {
+      const formData = new FormData();
+      formData.append("photo", file);
+      const token = localStorage.getItem("token");
+      const res = await fetch("/photosOfUser/new", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Lỗi upload ảnh");
+      }
+      const newPhoto = await res.json();
+      setPhotos((prev) => [newPhoto, ...prev]);
+      setUploadSuccess("Tải ảnh thành công!");
+    } catch (err) {
+      setUploadError(err.message || "Lỗi upload ảnh");
+    } finally {
+      setUploading(false);
+      e.target.value = ""; // reset input file
+    }
+  };
+
   if (error) return <div style={{ color: "red" }}>Lỗi: {error}</div>;
   if (!photos.length) return <div>Không có ảnh hoặc đang tải...</div>;
 
   return (
     <div>
+      {/* Form upload ảnh */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ fontWeight: 600 }}>
+          <span style={{ marginRight: 8 }}>Thêm ảnh mới:</span>
+          <input
+            type="file"
+            accept="image/*"
+            style={{ display: "inline-block" }}
+            onChange={handlePhotoUpload}
+            disabled={uploading}
+          />
+        </label>
+        {uploading && <span style={{ marginLeft: 8 }}>Đang tải lên...</span>}
+        {uploadError && (
+          <span style={{ color: "red", marginLeft: 8 }}>{uploadError}</span>
+        )}
+        {uploadSuccess && (
+          <span style={{ color: "green", marginLeft: 8 }}>{uploadSuccess}</span>
+        )}
+      </div>
+      {/* Danh sách ảnh */}
       {photos.map((photo) => (
         <div key={photo._id} style={{ marginBottom: 24 }}>
           <img

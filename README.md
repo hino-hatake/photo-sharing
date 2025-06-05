@@ -447,20 +447,35 @@ Trong giao diện chi tiết ảnh, khi người dùng đã đăng nhập, sẽ 
 
 ## VI. Photo Uploading
 
-**Mục tiêu:** Cho phép người dùng đã đăng nhập tải ảnh lên và hiển thị ảnh mới trong giao diện.
+### Mục tiêu
 
-**Yêu cầu:**
-- Frontend:
-Khi người dùng đã đăng nhập, thêm nút "Add Photo" vào thanh công cụ.
-Cho phép tải tệp ảnh lên và hiển thị ảnh mới trong giao diện danh sách ảnh của người dùng (User Photos) hoặc hiển thị thông báo thành công.
-- Backend:
-    
-    **API mới:**
-    - POST /photos/new:
-Nhận tệp ảnh trong body của yêu cầu.
-Lưu tệp vào thư mục images với tên duy nhất (tự tạo).
-Tạo đối tượng Photo mới(Tên tệp,Thời gian tạo, ID của người dùng đang đăng nhập).
-Trả về mã HTTP 400 nếu không có tệp trong yêu cầu.
+Cho phép người dùng đã đăng nhập tải ảnh lên và hiển thị ảnh mới trong giao diện.
+
+### Backend
+
+API mới:
+
+POST `/photos/new`
+- Nhận tệp ảnh (file upload) trong body của request (dạng `multipart/form-data`).
+- Lưu tệp vào thư mục `public/images` với tên duy nhất (có thể dùng `uuid` hoặc `timestamp`).
+- Tạo đối tượng Photo mới trong MongoDB: gồm tên tệp, thời gian tạo, ID của user đang đăng nhập (lấy từ JWT).
+- Trả về thông tin ảnh mới (hoặc lỗi 400 nếu không có tệp).
+
+Yêu cầu kỹ thuật:
+- Cần cài đặt **middleware** để xử lý file upload (ví dụ: `multer`).
+- Đảm bảo chỉ user đã đăng nhập mới upload được ảnh (JWT middleware).
+- Không thay đổi schema hiện tại.
+
+Cài thêm 2 package:
+```sh
+npm install multer uuid
+```
+
+### Frontend
+
+- Khi user đã đăng nhập, hiển thị nút "Add Photo" (ví dụ ở **toolbar** hoặc trên **UserPhotos**).
+- Khi bấm "Add Photo", cho phép chọn file ảnh và gửi lên backend qua API `/photos/new` (dạng `multipart/form-data`, kèm JWT).
+- Sau khi upload thành công, hiển thị ảnh mới ngay trong danh sách UserPhotos hoặc thông báo thành công.
 
 ## VII. Registration and Passwords
 

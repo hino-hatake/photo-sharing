@@ -1,6 +1,8 @@
 const Photo = require("../db/photoModel");
 const User = require("../db/userModel");
 const mongoose = require("mongoose");
+const path = require("path");
+const fs = require("fs");
 
 exports.getPhotosOfUser = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.user_id)) {
@@ -104,5 +106,31 @@ exports.addCommentToPhoto = async (req, res) => {
     return;
   } catch (err) {
     res.status(500).json({ error: "Lỗi thêm bình luận chưa rõ tại sao" });
+  }
+};
+
+exports.uploadPhoto = async (req, res) => {
+  // Multer đã lưu file vào req.file
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+  try {
+    const userId = req.user?._id;
+    // Tạo đối tượng Photo mới
+    const newPhoto = await Photo.create({
+      file_name: req.file.filename,
+      user_id: userId,
+      date_time: new Date(),
+      comments: [],
+    });
+    res.json({
+      _id: newPhoto._id,
+      user_id: newPhoto.user_id,
+      file_name: newPhoto.file_name,
+      date_time: newPhoto.date_time,
+      comments: [],
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Lỗi upload ảnh chưa rõ tại sao" });
   }
 };
