@@ -71,14 +71,37 @@ exports.addCommentToPhoto = async (req, res) => {
       user_id: userId,
     });
     await photo.save();
-    // Lấy lại photo với populate user cho comment mới nhất
-    const updatedPhoto = await Photo.findById(photo_id)
-      .populate({
-        path: "comments.user_id",
-        select: "_id first_name last_name",
-      })
+    // Lấy lại photo và gắn user cho từng comment (giống getPhotosOfUser)
+    const photoWithComments = await Photo.findById(photo_id)
+      .select("_id user_id file_name date_time comments")
       .lean();
-    res.json(updatedPhoto);
+    const commentsWithUser = await Promise.all(
+      (photoWithComments.comments || []).map(async (cmt) => {
+        const commentUser = await User.findById(cmt.user_id)
+          .select("_id first_name last_name")
+          .lean();
+        return {
+          _id: cmt._id,
+          comment: cmt.comment,
+          date_time: cmt.date_time,
+          user: commentUser
+            ? {
+                _id: commentUser._id,
+                first_name: commentUser.first_name,
+                last_name: commentUser.last_name,
+              }
+            : null,
+        };
+      })
+    );
+    res.json({
+      _id: photoWithComments._id,
+      user_id: photoWithComments.user_id,
+      file_name: photoWithComments.file_name,
+      date_time: photoWithComments.date_time,
+      comments: commentsWithUser,
+    });
+    return;
   } catch (err) {
     res.status(500).json({ error: "Lỗi thêm bình luận chưa rõ tại sao" });
   }

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import logo from './logo.svg';
 import UserList from "./components/UserList";
 import UserDetail from "./components/UserDetail";
 import UserPhotos from "./components/UserPhotos";

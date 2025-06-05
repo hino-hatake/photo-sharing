@@ -422,6 +422,12 @@ Thử bình luận rỗng sẽ nhận lỗi 400:
 }
 ```
 
+### Verify UI
+
+Trong giao diện chi tiết ảnh, khi người dùng đã đăng nhập, sẽ có ô nhập bình luận và nút gửi. Khi người dùng nhập bình luận và gửi, bình luận mới sẽ được hiển thị ngay lập tức mà không cần reload trang. Giao diện chưa có css hay tailwind nên khá thô sơ như sau:
+
+![alt text](ui-comment.png)
+
 ## VI. Photo Uploading
 
 **Mục tiêu:** Cho phép người dùng đã đăng nhập tải ảnh lên và hiển thị ảnh mới trong giao diện.
