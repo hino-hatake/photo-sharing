@@ -546,6 +546,33 @@ curl -sX POST http://localhost:3001/user \
   }'
 ```  
 
+Login:
+```sh
+curl -sX POST http://localhost:3001/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"login_name":"newuser", "password":"123456"}' | jq
+curl -sX POST http://localhost:3001/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"login_name":"ian", "password":"123"}' | jq
+curl -sX POST https://tgjn48-3001.csb.app/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"login_name":"ian", "password":"123"}' | jq
+```
+
+List user:
+```sh
+curl -s http://localhost:3001/user/list \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" | jq
+
+curl -s http://localhost:3001/user/list \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1NzIzMWYxYTMwZTQzNTFmNGU5ZjRiZDciLCJmaXJzdF9uYW1lIjoiSWFuIiwibGFzdF9uYW1lIjoiTWFsY29sbSIsImlhdCI6MTc0OTIzMjAyMiwiZXhwIjoxNzQ5MjM1NjIyfQ.V_0f6R2om_Qsm1P0jyKvfhoR_hfC1A8bkKUV4RVTS1Y" | jq
+
+curl -s https://tgjn48-3001.csb.app/user/list \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1NzIzMWYxYTMwZTQzNTFmNGU5ZjRiZDciLCJmaXJzdF9uYW1lIjoiSWFuIiwibGFzdF9uYW1lIjoiTWFsY29sbSIsImlhdCI6MTc0OTIzMjAyMiwiZXhwIjoxNzQ5MjM1NjIyfQ.V_0f6R2om_Qsm1P0jyKvfhoR_hfC1A8bkKUV4RVTS1Y" | jq
+
 ### Verify UI
 
 Giao diện đăng ký sẽ có dạng như sau:
