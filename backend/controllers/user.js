@@ -1,5 +1,6 @@
 const User = require("../db/userModel");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 exports.getUserList = async (req, res) => {
   try {
@@ -38,9 +39,11 @@ exports.registerUser = async (req, res) => {
     if (existed) {
       return res.status(400).json({ error: "login_name đã tồn tại" });
     }
+    // Hash password trước khi lưu
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
       login_name,
-      password,
+      password: hashedPassword,
       first_name,
       last_name,
       location,

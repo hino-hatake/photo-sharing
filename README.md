@@ -554,13 +554,19 @@ Giao diện đăng ký sẽ có dạng như sau:
 Tạo tài khoản mới thành công sẽ hiển thị thông báo yêu cầu đăng nhập mới, sau khi đăng nhập sẽ hiển thị giao diện chính với thông tin người dùng đã đăng nhập.:
 ![alt text](ui-logged-in-after-registered.png)
 
-### Next steps
+## IX. Băm password
 
 Cập nhật backend để lưu mật khẩu dưới dạng `hash` (băm) thay vì `plaintext`. Đây là best practice cho bảo mật. Ta sẽ dùng thư viện `bcrypt` để hash password khi đăng ký và so sánh khi đăng nhập.
 
 Các bước cập nhật backend:
 
-- Cài đặt `bcrypt`.
+- Cài đặt `bcrypt` (`npm install bcrypt`).
 - Khi đăng ký user (POST `/user`): hash password trước khi lưu vào DB.
 - Khi đăng nhập (POST `/admin/login`): so sánh password nhập vào với hash trong DB bằng `bcrypt.compare`.
 - Không thay đổi schema, chỉ thay đổi logic lưu và kiểm tra password.
+
+Muốn hash lại password plaintext cũ:
+```sh
+node -e "const bcrypt=require('bcrypt');['123456'].forEach(async pw=>console.log(await bcrypt.hash(pw,10)))"
+node hash.js
+```
