@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { postModel } from "../../lib/fetchModelData";
 
 const initialRegisterState = {
   login_name: "",
@@ -27,12 +27,12 @@ const LoginRegister = ({ onLogin }) => {
     setError(null);
     setLoading(true);
     try {
-      const res = await axios.post("/admin/login", { login_name: loginName, password });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      onLogin(res.data.user);
+      const res = await postModel("/admin/login", { login_name: loginName, password });
+      localStorage.setItem("token", res.token);
+      localStorage.setItem("user", JSON.stringify(res.user));
+      onLogin(res.user);
     } catch (err) {
-      setError(err.response?.data?.error || "Đăng nhập thất bại");
+      setError(err.message || "Đăng nhập thất bại");
     } finally {
       setLoading(false);
     }
@@ -54,11 +54,11 @@ const LoginRegister = ({ onLogin }) => {
     try {
       const body = { ...register };
       delete body.password2;
-      await axios.post("/user", body);
+      await postModel("/user", body);
       setRegisterSuccess("Đăng ký thành công! Bạn có thể đăng nhập.");
       setRegister(initialRegisterState);
     } catch (err) {
-      setError(err.response?.data?.error || "Đăng ký thất bại");
+      setError(err.message || "Đăng ký thất bại");
     } finally {
       setRegisterLoading(false);
     }
