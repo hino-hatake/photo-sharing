@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../db/userModel");
+const userBasicDTO = require("../models/mapper");
 
 const JWT_SECRET = process.env.JWT_SECRET || "photoapp_secret";
 
@@ -31,7 +32,7 @@ exports.login = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ error: "Lỗi login chưa rõ tại sao" });
+    res.status(500).json({ error: "Lỗi login: " + err.message });
   }
 };
 

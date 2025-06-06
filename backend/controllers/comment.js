@@ -1,56 +1,7 @@
 const Photo = require("../db/photoModel");
 const User = require("../db/userModel");
 const mongoose = require("mongoose");
-
-exports.getPhotosOfUser = async (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({ error: "Invalid user ID" });
-  }
-  try {
-    const user = await User.findById(req.params.id).lean();
-    if (!user) {
-      return res.status(400).json({ error: "Invalid user ID" });
-    }
-    const photos = await Photo.find({ user_id: req.params.id })
-      .select("_id user_id file_name date_time comments")
-      .lean();
-
-    // Lấy thông tin user cho từng comment
-    const photoData = await Promise.all(
-      photos.map(async (photo) => {
-        const comments = await Promise.all(
-          (photo.comments || []).map(async (comment) => {
-            const commentUser = await User.findById(comment.user_id)
-              .select("_id first_name last_name")
-              .lean();
-            return {
-              _id: comment._id,
-              comment: comment.comment,
-              date_time: comment.date_time,
-              user: commentUser
-                ? {
-                    _id: commentUser._id,
-                    first_name: commentUser.first_name,
-                    last_name: commentUser.last_name,
-                  }
-                : null,
-            };
-          })
-        );
-        return {
-          _id: photo._id,
-          user_id: photo.user_id,
-          file_name: photo.file_name,
-          date_time: photo.date_time,
-          comments,
-        };
-      })
-    );
-    res.json(photoData);
-  } catch (err) {
-    res.status(400).json({ error: "Lỗi lấy ảnh của người dùng chưa rõ tại sao" });
-  }
-};
+const { commentDTO, photoDTO } = require("../models/mapper");
 
 exports.addCommentToPhoto = async (req, res) => {
   const { photo_id } = req.params;
@@ -71,15 +22,21 @@ exports.addCommentToPhoto = async (req, res) => {
       user_id: userId,
     });
     await photo.save();
-    // Lấy lại photo với populate user cho comment mới nhất
-    const updatedPhoto = await Photo.findById(photo_id)
-      .populate({
-        path: "comments.user_id",
-        select: "_id first_name last_name",
-      })
+    // Lấy lại photo và gắn user cho từng comment (dùng DTO)
+    const photoWithComments = await Photo.findById(photo_id)
+      .select("_id user_id file_name date_time comments")
       .lean();
-    res.json(updatedPhoto);
+    const commentsWithUser = await Promise.all(
+      (photoWithComments.comments || []).map(async (cmt) => {
+        const commentUser = await User.findById(cmt.user_id)
+          .select("_id first_name last_name")
+          .lean();
+        return commentDTO(cmt, commentUser);
+      })
+    );
+    res.json(photoDTO(photoWithComments, commentsWithUser));
+    return;
   } catch (err) {
-    res.status(500).json({ error: "Lỗi comment chưa rõ tại sao" });
+    res.status(500).json({ error: "Lỗi thêm bình luận: " + err.message });
   }
 };

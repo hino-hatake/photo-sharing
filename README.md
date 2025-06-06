@@ -570,3 +570,14 @@ Muốn hash lại password plaintext cũ:
 node -e "const bcrypt=require('bcrypt');['123456'].forEach(async pw=>console.log(await bcrypt.hash(pw,10)))"
 node hash.js
 ```
+
+## X. Làm đẹp giao diện với Tailwind CSS
+
+### Cài đặt
+
+```sh
+cd frontend
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+

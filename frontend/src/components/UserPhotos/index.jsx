@@ -85,7 +85,6 @@ const UserPhotos = ({ userId }) => {
   };
 
   if (error) return <div style={{ color: "red" }}>Lỗi: {error}</div>;
-  if (!photos.length) return <div>Không có ảnh hoặc đang tải...</div>;
 
   return (
     <div>
@@ -110,53 +109,57 @@ const UserPhotos = ({ userId }) => {
         )}
       </div>
       {/* Danh sách ảnh */}
-      {photos.map((photo) => (
-        <div key={photo._id} style={{ marginBottom: 24 }}>
-          <img
-            src={`/images/${photo.file_name}`}
-            alt=""
-            style={{ maxWidth: 300 }}
-          />
-          <div>
-            <b>Ngày:</b> {new Date(photo.date_time).toLocaleString()}
-          </div>
-          <div>
-            <b>Bình luận:</b>
-            <ul>
-              {(photo.comments || []).map((cmt) => (
-                <li key={cmt._id}>
-                  <b>
-                    {cmt.user?.first_name} {cmt.user?.last_name}:
-                  </b>{" "}
-                  {cmt.comment}{" "}
-                  <i>({new Date(cmt.date_time).toLocaleString()})</i>
-                </li>
-              ))}
-            </ul>
-            {/* Form thêm bình luận */}
-            <div style={{ marginTop: 8 }}>
-              <input
-                type="text"
-                placeholder="Thêm bình luận..."
-                value={commentInputs[photo._id] || ""}
-                onChange={(e) => handleInputChange(photo._id, e.target.value)}
-                style={{ width: 220, marginRight: 8 }}
-                disabled={posting[photo._id]}
-                onKeyDown={(e) => {
-                  // Cho phép gửi bình luận bằng phím Enter
-                  if (e.key === "Enter") handleCommentSubmit(photo._id);
-                }}
-              />
-              <button
-                onClick={() => handleCommentSubmit(photo._id)}
-                disabled={posting[photo._id]}
-              >
-                Gửi
-              </button>
+      {!photos.length ? (
+        <div>Không có ảnh hoặc đang tải...</div>
+      ) : (
+        photos.map((photo) => (
+          <div key={photo._id} style={{ marginBottom: 24 }}>
+            <img
+              src={`/images/${photo.file_name}`}
+              alt=""
+              style={{ maxWidth: 300 }}
+            />
+            <div>
+              <b>Ngày:</b> {new Date(photo.date_time).toLocaleString()}
+            </div>
+            <div>
+              <b>Bình luận:</b>
+              <ul>
+                {(photo.comments || []).map((cmt) => (
+                  <li key={cmt._id}>
+                    <b>
+                      {cmt.user?.first_name} {cmt.user?.last_name}:
+                    </b>{" "}
+                    {cmt.comment}{" "}
+                    <i>({new Date(cmt.date_time).toLocaleString()})</i>
+                  </li>
+                ))}
+              </ul>
+              {/* Form thêm bình luận */}
+              <div style={{ marginTop: 8 }}>
+                <input
+                  type="text"
+                  placeholder="Thêm bình luận..."
+                  value={commentInputs[photo._id] || ""}
+                  onChange={(e) => handleInputChange(photo._id, e.target.value)}
+                  style={{ width: 220, marginRight: 8 }}
+                  disabled={posting[photo._id]}
+                  onKeyDown={(e) => {
+                    // Cho phép gửi bình luận bằng phím Enter
+                    if (e.key === "Enter") handleCommentSubmit(photo._id);
+                  }}
+                />
+                <button
+                  onClick={() => handleCommentSubmit(photo._id)}
+                  disabled={posting[photo._id]}
+                >
+                  Gửi
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 };
