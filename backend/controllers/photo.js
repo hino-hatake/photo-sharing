@@ -31,8 +31,9 @@ exports.getPhotosOfUser = async (req, res) => {
       })
     );
     res.json(photoData);
-  } catch (err) {
-    res.status(400).json({ error: "Lỗi lấy ảnh của user chưa rõ tại sao" });
+  } catch (error) {
+    console.error("Lỗi lấy ảnh của user: ", error);
+    res.status(400).json({ error: "Lỗi lấy ảnh của user: " + error.message });
   }
 };
 
@@ -52,7 +53,8 @@ exports.uploadPhoto = async (req, res) => {
     });
     // Sử dụng photoDTO để trả về đúng format
     res.json(photoDTO(newPhoto, []));
-  } catch (err) {
-    res.status(500).json({ error: "Lỗi upload ảnh chưa rõ tại sao" });
+  } catch (error) {
+    console.error("Lỗi upload ảnh: ", error);
+    res.status(500).json({ error: "Lỗi upload ảnh: " + error.message });
   }
 };

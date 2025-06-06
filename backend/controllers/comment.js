@@ -36,7 +36,8 @@ exports.addCommentToPhoto = async (req, res) => {
     );
     res.json(photoDTO(photoWithComments, commentsWithUser));
     return;
-  } catch (err) {
-    res.status(500).json({ error: "Lỗi thêm bình luận: " + err.message });
+  } catch (error) {
+    console.error("Lỗi thêm bình luận: ", error.message);
+    res.status(500).json({ error: "Lỗi thêm bình luận: " + error.message });
   }
 };
