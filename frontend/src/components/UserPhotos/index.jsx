@@ -115,7 +115,7 @@ const UserPhotos = ({ userId }) => {
         photos.map((photo) => (
           <div key={photo._id} style={{ marginBottom: 24 }}>
             <img
-              src={`/images/${photo.file_name}`}
+              src={`${process.env.REACT_APP_API_BASE_URL}/images/${photo.file_name}`}
               alt=""
               style={{ maxWidth: 300 }}
             />
