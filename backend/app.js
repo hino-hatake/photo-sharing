@@ -15,11 +15,11 @@ const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
-app.use("/images", express.static("public/images"));
 
 connectDB();
 
 app.use("/admin", adminRoutes);
+app.use("/images", express.static("public/images")); // ko authen khi load images
 app.use("/user", registerRoutes); // Đặt trước auth: chỉ POST /user là public
 
 // Bảo vệ các route sau bằng JWT, trừ /admin/login và /admin/logout
