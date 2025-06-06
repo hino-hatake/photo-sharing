@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const photoController = require("../controllers/photo");
+const commentController = require("../controllers/comment");
 
 // Thêm bình luận mới vào photo
-router.post("/:photo_id", photoController.addCommentToPhoto);
+router.post("/:photo_id", commentController.addCommentToPhoto);
 
 module.exports = router;
