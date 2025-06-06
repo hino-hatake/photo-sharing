@@ -12,6 +12,8 @@ const handleAuthError = (err) => {
   }
 };
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
+
 /**
  * fetchModel(endpoint: string): Promise<any>
  * Gửi GET request tới backend, trả về dữ liệu JSON hoặc throw lỗi nếu có lỗi.
@@ -21,7 +23,7 @@ const fetchModel = async (endpoint) => {
   try {
     const token = localStorage.getItem("token");
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    const res = await axios.get(endpoint, { headers });
+    const res = await axios.get(`${API_BASE_URL}${endpoint}`, { headers });
     return res.data;
   } catch (err) {
     handleAuthError(err);
@@ -42,7 +44,7 @@ const postModel = async (endpoint, data) => {
   try {
     const token = localStorage.getItem("token");
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    const res = await axios.post(endpoint, data, { headers });
+    const res = await axios.post(`${API_BASE_URL}${endpoint}`, data, { headers });
     return res.data;
   } catch (err) {
     handleAuthError(err);
